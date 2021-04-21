@@ -143,6 +143,20 @@ public class UserServiceImplUnitTestNoDB {
 
     @Test
     public void findByNameContaining() {
+
+        Mockito.when(userRepository.findByUsernameContainingIgnoreCase("any name"))
+                .thenReturn(userList);
+
+        List<User> result = userService.findByNameContaining("any name");
+
+        assertEquals(userList.size(), result.size());
+    }
+
+    @Test
+    public void findByNameContainingNotFound() {
+        Mockito.when(userRepository.findByUsernameContainingIgnoreCase("not found"))
+                .thenReturn(new ArrayList<>());
+        assertEquals(0, userService.findByNameContaining("not found").size());
     }
 
     @Test
