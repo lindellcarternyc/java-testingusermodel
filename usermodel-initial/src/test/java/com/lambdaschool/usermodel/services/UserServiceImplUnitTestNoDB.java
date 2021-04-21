@@ -122,7 +122,7 @@ public class UserServiceImplUnitTestNoDB {
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
     }
 
     @Test
@@ -161,12 +161,37 @@ public class UserServiceImplUnitTestNoDB {
 
     @Test
     public void findAll() {
+        Mockito.when(userRepository.findAll())
+                .thenReturn(userList);
+
+        assertEquals(userList.size(), userService.findAll().size());
     }
 
     @Test
     public void delete() {
+        Mockito.when(userRepository.findById(1L))
+                .thenReturn(Optional.of(userList.get(0)));
+        Mockito.doNothing()
+                .when(userRepository)
+                .deleteById(1L);
+
+        userService.delete(1);
+
+        assertEquals(5, userList.size());
     }
 
+    @Test(expected = ResourceNotFoundException.class)
+    public void deleteFailed() {
+        Mockito.when(userRepository.findById(100L))
+                .thenReturn(Optional.empty());
+        Mockito.doNothing()
+                .when(userRepository)
+                .deleteById(100L);
+
+        userService.delete(100);
+
+        assertEquals(5, userList.size());
+    }
     @Test
     public void findByName() {
     }
