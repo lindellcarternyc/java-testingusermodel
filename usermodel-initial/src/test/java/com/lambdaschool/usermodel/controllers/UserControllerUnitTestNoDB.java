@@ -31,6 +31,7 @@ import org.springframework.web.context.WebApplicationContext;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.*;
@@ -47,6 +48,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 public class UserControllerUnitTestNoDB {
     private static final String API_START = "/users";
+
     @Autowired
     private WebApplicationContext webApplicationContext;
 
@@ -234,7 +236,37 @@ public class UserControllerUnitTestNoDB {
     }
 
     @Test
-    public void getUserLikeName() {
+    public void getUserLikeName() throws Exception {
+        String apiUrl = API_START + "/user/name/like/admin";
+        Mockito.when(userService.findByNameContaining("admin"))
+                .thenReturn(userList);
+
+        RequestBuilder rb = MockMvcRequestBuilders.get(apiUrl)
+                .accept(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(rb)
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("test admin")));
+    }
+
+    @Test
+    public void getUserLikeNameNotFound() throws Exception {
+        String apiUrl = API_START + "/user/name/like/not found";
+        Mockito.when(userService.findByNameContaining("not found"))
+                .thenReturn(new ArrayList<>());
+
+        RequestBuilder rb = MockMvcRequestBuilders.get(apiUrl)
+                .accept(MediaType.APPLICATION_JSON);
+        MvcResult r = mockMvc.perform(rb)
+                .andDo(print())
+                .andReturn();
+
+        String tr = r.getResponse()
+                .getContentAsString();
+
+        String er = "[]";
+
+        assertEquals(er, tr);
     }
 
     @Test
