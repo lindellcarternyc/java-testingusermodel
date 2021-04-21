@@ -6,7 +6,6 @@ import com.lambdaschool.usermodel.models.Role;
 import com.lambdaschool.usermodel.models.User;
 import com.lambdaschool.usermodel.models.UserRoles;
 import com.lambdaschool.usermodel.models.Useremail;
-import com.lambdaschool.usermodel.repository.UserRepository;
 import com.lambdaschool.usermodel.services.UserService;
 import io.restassured.module.mockmvc.RestAssuredMockMvc;
 import org.junit.After;
@@ -58,9 +57,6 @@ public class UserControllerUnitTestNoDB {
 
     @MockBean
     private UserService userService;
-
-    @MockBean
-    private UserRepository userRepository;
 
     List<User> userList = new ArrayList<>();
     @Before
@@ -320,9 +316,6 @@ public class UserControllerUnitTestNoDB {
         testUser.getUseremails()
                 .add(new Useremail(testUser, "t@t.com"));
 
-
-//        Mockito.when(userRepository.findById(10L))
-//                .thenReturn(Optional.of(testUser));
         Mockito.when(userService.save(any(User.class)))
                 .thenReturn(testUser);
 
