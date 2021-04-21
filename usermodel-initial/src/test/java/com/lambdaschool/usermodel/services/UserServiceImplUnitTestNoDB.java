@@ -6,6 +6,7 @@ import com.lambdaschool.usermodel.models.Role;
 import com.lambdaschool.usermodel.models.User;
 import com.lambdaschool.usermodel.models.UserRoles;
 import com.lambdaschool.usermodel.models.Useremail;
+import com.lambdaschool.usermodel.repository.RoleRepository;
 import com.lambdaschool.usermodel.repository.UserRepository;
 import org.junit.After;
 import org.junit.Before;
@@ -23,6 +24,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.Assert.*;
+import static org.mockito.ArgumentMatchers.any;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = UserModelApplicationTesting.class,
@@ -33,6 +35,9 @@ public class UserServiceImplUnitTestNoDB {
 
     @MockBean
     private UserRepository userRepository;
+
+    @MockBean
+    private RoleRepository roleRepository;
 
     List<User> userList = new ArrayList<>();
 
@@ -192,12 +197,46 @@ public class UserServiceImplUnitTestNoDB {
 
         assertEquals(5, userList.size());
     }
+
     @Test
     public void findByName() {
+        Mockito.when(userRepository.findByUsername("test admin"))
+                .thenReturn(userList.get(0));
+
+        assertEquals("test admin",
+                userService.findByName("test admin")
+                        .getUsername());
+    }
+
+    @Test(expected = ResourceNotFoundException.class)
+    public void findByNameNotFound() {
+        Mockito.when(userRepository.findByUsername("not found"))
+            .thenReturn(null);
+
+        assertEquals("not found",
+                userService.findByName("not found").getUsername());
     }
 
     @Test
-    public void save() {
+    public void saveNewUser() {
+        String testUsername = "Test Restaurant Name";
+        User testUser = new User(testUsername,
+                "password",
+                "testemail@email.com");
+        Role testRole = new Role("testRole");
+        testRole.setRoleid(11);
+        testUser.getRoles()
+                .add(new UserRoles(testUser, testRole));
+        testUser.getUseremails().add(new Useremail(testUser, "testemail@email.com"));
+
+        Mockito.when(userRepository.save(any(User.class)))
+                .thenReturn(testUser);
+        Mockito.when(roleRepository.findById(11L))
+                .thenReturn(Optional.of(testRole));
+
+        User saveUser = userService.save(testUser);
+        assertNotNull(saveUser);
+        assertEquals(testUsername.toLowerCase(), saveUser.getUsername());
     }
 
     @Test
@@ -206,5 +245,12 @@ public class UserServiceImplUnitTestNoDB {
 
     @Test
     public void deleteAll() {
+        Mockito.doNothing()
+                .when(userRepository)
+                .deleteAll();
+
+        userService.deleteAll();
+
+        assertEquals(5, userList.size());
     }
 }
