@@ -337,10 +337,25 @@ public class UserControllerUnitTestNoDB {
     }
 
     @Test
-    public void deleteUserById() {
+    public void deleteUserById() throws  Exception {
+        String apiUrl = API_START + "/user/{userid}";
+
+        RequestBuilder rb = MockMvcRequestBuilders.delete(apiUrl, 10L)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(rb)
+                .andExpect(status().isOk());
     }
 
     @Test
-    public void getCurrentUserInfo() {
+    public void getCurrentUserInfo() throws Exception {
+        String apiUrl = API_START + "/getuserinfo";
+
+        RequestBuilder rb = MockMvcRequestBuilders.get(apiUrl)
+                .accept(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(rb)
+                .andExpect(status().isOk());
     }
 }
