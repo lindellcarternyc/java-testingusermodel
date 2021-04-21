@@ -35,6 +35,7 @@ import java.util.Optional;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -270,7 +271,33 @@ public class UserControllerUnitTestNoDB {
     }
 
     @Test
-    public void addNewUser() {
+    public void addNewUser() throws Exception {
+        String apiUrl = API_START + "/user";
+
+        Role testRole = new Role("test");
+        User testUser = new User(
+                "test",
+                "password",
+                "t@t.com"
+        );
+        testUser.getRoles()
+                .add(new UserRoles(testUser, testRole));
+        testUser.getUseremails()
+                .add(new Useremail(testUser, "t@t.com"));
+
+        ObjectMapper mapper = new ObjectMapper();
+        String newUserStr = mapper.writeValueAsString(testUser);
+
+        Mockito.when(userService.save(any(User.class)))
+                .thenReturn(testUser);
+
+        RequestBuilder rb = MockMvcRequestBuilders.post(apiUrl)
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(newUserStr);
+
+        mockMvc.perform(rb)
+                .andExpect(status().isCreated());
     }
 
     @Test
