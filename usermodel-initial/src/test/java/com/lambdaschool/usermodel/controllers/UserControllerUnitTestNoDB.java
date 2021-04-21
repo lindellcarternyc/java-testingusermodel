@@ -202,7 +202,35 @@ public class UserControllerUnitTestNoDB {
     }
 
     @Test
-    public void getUserByName() {
+    public void getUserByName() throws Exception {
+        String apiUrl = API_START + "/user/name/test admin";
+        Mockito.when(userService.findByName("test admin"))
+                .thenReturn(userList.get(0));
+
+        RequestBuilder rb = MockMvcRequestBuilders.get(apiUrl)
+                .accept(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(rb)
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("test admin")));
+    }
+
+    @Test
+    public void getUserByNameNotFound() throws Exception {
+        String apiUrl = API_START + "/user/name/noname";
+        Mockito.when(userService.findByName("noname"))
+                .thenReturn(null);
+
+        RequestBuilder rb = MockMvcRequestBuilders.get(apiUrl)
+                .accept(MediaType.APPLICATION_JSON);
+        MvcResult r = mockMvc.perform(rb)
+                .andReturn();
+        String tr = r.getResponse()
+                .getContentAsString();
+
+        String er = "";
+
+        assertEquals(er, tr);
     }
 
     @Test
