@@ -183,7 +183,22 @@ public class UserControllerUnitTestNoDB {
     }
 
     @Test
-    public void getUserByIdNotFound() {
+    public void getUserByIdNotFound() throws Exception {
+        String apiUrl = API_START + "/user/100";
+        Mockito.when(userService.findUserById(100))
+                .thenReturn(null);
+
+        RequestBuilder rb = MockMvcRequestBuilders.get(apiUrl)
+                .accept(MediaType.APPLICATION_JSON);
+        MvcResult r = mockMvc.perform(rb)
+                .andDo(print())
+                .andReturn();
+        String tr = r.getResponse()
+                .getContentAsString();
+
+        String er = "";
+
+        assertEquals(er, tr);
     }
 
     @Test
